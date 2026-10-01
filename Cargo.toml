@@ -1,0 +1,20 @@
+[package]
+name = "cpr-omp-native-bridge"
+version = "0.1.2"
+edition = "2024"
+rust-version = "1.97"
+publish = false
+license = "Apache-2.0"
+
+[dependencies]
+gateway-plugin-sdk = { git = "https://github.com/zyycn/codex-proxy-rs.git", rev = "9c1067676495623111497111b7cb136544fe1828", features = ["io"] }
+tokio = { version = "1.52.3", default-features = false, features = ["io-std", "macros", "rt"] }
+
+[lints.rust]
+unsafe_code = "forbid"
+
+[profile.release]
+strip = "symbols"
+lto = "thin"
+codegen-units = 1
+panic = "abort"
