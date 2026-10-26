@@ -3,6 +3,12 @@
 version = 4
 
 [[package]]
+name = "base64"
+version = "0.23.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ac07cdecf99051d9a5238b80f35af32cdeba5b336e55d957b318b50137e18da5"
+
+[[package]]
 name = "bytes"
 version = "1.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -10,7 +16,7 @@ checksum = "fc652a48c352aef3ea3aed32080501cf3ef6ed5da78602a020c991775b0aff04"
 
 [[package]]
 name = "cpr-omp-native-bridge"
-version = "0.1.2"
+version = "0.2.0"
 dependencies = [
  "gateway-plugin-sdk",
  "tokio",
@@ -19,8 +25,9 @@ dependencies = [
 [[package]]
 name = "gateway-plugin-sdk"
 version = "0.1.0"
-source = "git+https://github.com/zyycn/codex-proxy-rs.git?rev=9c1067676495623111497111b7cb136544fe1828#9c1067676495623111497111b7cb136544fe1828"
+source = "git+https://github.com/zyycn/codex-proxy-rs.git?rev=6a5300a7b5c649f2a6d548df70ccdd58d15e0025#6a5300a7b5c649f2a6d548df70ccdd58d15e0025"
 dependencies = [
+ "base64",
  "semver",
  "serde",
  "serde_json",

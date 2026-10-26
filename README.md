@@ -19,16 +19,16 @@ CPR owns authentication, client-key access scope, account selection, native Code
 
 ## Compatibility
 
-- Source/package version: `0.1.2`.
-- Manifest host range: CPR `>=3.18.3, <4.0.0`; runtime verification has covered CPR `3.18.3`, not every version in that range.
-- Official SDK and packaging CLI pinned to CPR revision `9c1067676495623111497111b7cb136544fe1828`.
+- Source/package version: `0.2.0`.
+- Manifest host range: CPR `>=3.32.0, <3.33.0`. This release targets CPR `3.32.0`'s RPC v6 and middleware v6 contracts; it is not compatible with the old RPC used by `0.1.x`. Future host releases must be checked against their published compatibility contract.
+- Official SDK and packaging CLI pinned to CPR revision `6a5300a7b5c649f2a6d548df70ccdd58d15e0025` (`v3.32.0`).
 - Stable plugin ID: `selfhosted.omp-native-bridge`. The legacy machine name is retained for identity continuity; it does not restrict the plugin to one client.
 
 The public repository is [codex-path-native-bridge](https://github.com/ninthcj/codex-path-native-bridge). The Rust package/binary keeps its existing name, `cpr-omp-native-bridge`.
 
 ## Build and package
 
-Requires Rust/Cargo `1.97` or newer, Git, Make and access to the pinned upstream source and Cargo dependencies. `Cargo.lock` is retained. Run from the repository root:
+Requires Rust/Cargo `1.99.1` or newer, Git, Make and access to the pinned upstream source and Cargo dependencies. `Cargo.lock` is retained. Run from the repository root:
 
 ```sh
 make test
@@ -70,7 +70,9 @@ The existing three deterministic Rust tests cover:
 - unchanged unrelated paths and URI forms;
 - unchanged unrelated methods, including case variants.
 
-The unchanged routing implementation has previously been exercised against CPR `3.18.3` with real SSE and WebSocket requests and multi-turn continuation through a compatible client. These observations establish the path bridge's behavior, not compatibility with every client or future CPR release. Version `0.1.2` changes public licensing and package metadata, not routing behavior; those earlier live checks were not a deployment of this version.
+Version `0.2.0` passed the three Rust tests and was built and packaged on macOS arm64 with the pinned official CLI. An offline fixture host exercised the actual release plugin process over RPC v6: registration and rejection of a mismatched contribution, 15 HTTP middleware cases, and clean shutdown. These checks covered the GET WebSocket upgrade response and POST SSE response handles, exact URI/query preservation, unchanged headers/settings/timeouts/lazy body handles, one `next` callback per request, and no body reads or response buffering. The fixture is not a running CPR gateway or an upstream model service; live authentication, network SSE/WebSocket traffic, and continuation on CPR `3.32.0` have not been exercised.
+
+The unchanged routing implementation was previously exercised against CPR `3.18.3` with real SSE and WebSocket requests and multi-turn continuation through a compatible client. That historical evidence does not establish end-to-end compatibility of this SDK upgrade.
 
 For your own installation, verify that authentication still applies, then exercise the client's SSE and WebSocket transports and a continuation turn. A successful upload or an enabled status alone is not evidence of end-to-end client compatibility.
 
@@ -78,9 +80,13 @@ For your own installation, verify that authentication still applies, then exerci
 
 This project's source is licensed under [Apache License 2.0](LICENSE).
 
-It depends on CPR's official `gateway-plugin-sdk`, which inherits `Apache-2.0` from the [pinned upstream workspace](https://github.com/zyycn/codex-proxy-rs/blob/9c1067676495623111497111b7cb136544fe1828/backend/Cargo.toml). The pinned upstream tree contains no `NOTICE` file, so no upstream NOTICE text is reproduced here. Dependencies remain under their respective licenses; this project's license does not relicense them. Binary redistributors must also satisfy the licenses of the dependencies they distribute.
+It depends on CPR's official `gateway-plugin-sdk`, which inherits `Apache-2.0` from the [pinned upstream workspace](https://github.com/zyycn/codex-proxy-rs/blob/6a5300a7b5c649f2a6d548df70ccdd58d15e0025/backend/Cargo.toml). The pinned upstream root contains no `NOTICE` file. Dependencies remain under their respective licenses; this project's license does not relicense them. Binary redistributors must also satisfy the licenses of the dependencies they distribute.
 
 ## Changes
+
+### 0.2.0
+
+Update the official SDK and packaging CLI to CPR `3.32.0`, with RPC v6 and middleware v6. Raise the Rust requirement to match upstream and replace the old broad host range with `>=3.32.0, <3.33.0`. Keep the stable plugin ID and routing implementation unchanged; no cache control, client-specific conversion, or additional call-budget overrides are introduced. Rebuild and replace old plugin packages when upgrading the host; a `0.1.x` package does not become RPC-v6 compatible by changing its metadata.
 
 ### 0.1.2
 
@@ -88,6 +94,6 @@ Adopt Apache-2.0 licensing and publish client-neutral build, installation and tr
 
 ## Upstream references
 
-- [Plugin installation and trust](https://github.com/zyycn/codex-proxy-rs/blob/9c1067676495623111497111b7cb136544fe1828/docs/plugins.md)
-- [Official SDK](https://github.com/zyycn/codex-proxy-rs/blob/9c1067676495623111497111b7cb136544fe1828/backend/crates/gateway-plugin/sdk/README.md)
-- [Official packaging CLI](https://github.com/zyycn/codex-proxy-rs/blob/9c1067676495623111497111b7cb136544fe1828/backend/apps/plugin-cli/README.md)
+- [Plugin installation and trust](https://github.com/zyycn/codex-proxy-rs/blob/6a5300a7b5c649f2a6d548df70ccdd58d15e0025/docs/plugins.md)
+- [Official SDK](https://github.com/zyycn/codex-proxy-rs/blob/6a5300a7b5c649f2a6d548df70ccdd58d15e0025/backend/crates/gateway-plugin/sdk/README.md)
+- [Official packaging CLI](https://github.com/zyycn/codex-proxy-rs/blob/6a5300a7b5c649f2a6d548df70ccdd58d15e0025/backend/apps/plugin-cli/README.md)
