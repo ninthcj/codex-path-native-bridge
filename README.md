@@ -44,12 +44,12 @@ The default target is derived from `rustc --print host-tuple`. Build for the CPR
 make package TARGET=x86_64-unknown-linux-gnu
 ```
 
-An explicit target requires its Rust target components and a suitable linker/toolchain. A macOS package cannot be installed as a Linux plugin. Generated binaries, packages and local CLI tools are excluded from the source repository; this repository does not supply prebuilt releases.
+An explicit target requires its Rust target components and a suitable linker/toolchain. A macOS package cannot be installed as a Linux plugin. Generated binaries, packages and local CLI tools are excluded from the source repository. Linux x86_64 packages and SHA-256 checksums are available in [GitHub Releases](https://github.com/ninthcj/codex-path-native-bridge/releases); other targets can be built from source.
 
 ## Install in CPR
 
-1. Build a package for the host platform.
-2. In CPR's **Plugin Management**, choose installation from an **uploaded package** and select the archive from `dist/`.
+1. In CPR's **Plugin Management**, choose **GitHub** and enter `ninthcj/codex-path-native-bridge`. Select `v0.2.0` (or a later compatible release) and the archive matching the host platform. Use the published SHA-256 when requested.
+2. Alternatively, build a package for the host platform and choose **uploaded package** to install the archive from `dist/`.
 3. Review the publisher, name, version, target platform and digest. Confirm installation only if you trust the code and its source.
 4. Confirm the configuration is enabled and published. This plugin has no configuration parameters or secrets. For an existing installation, review and confirm the switch to the new package version rather than assuming upload alone changes the active version.
 5. Use a compatible client's normal CPR credentials and endpoint settings so its requests reach `/v1/codex/responses` on the gateway. Existing CPR access rules still apply.
@@ -70,7 +70,9 @@ The existing three deterministic Rust tests cover:
 - unchanged unrelated paths and URI forms;
 - unchanged unrelated methods, including case variants.
 
-Version `0.2.0` passed the three Rust tests and was built and packaged on macOS arm64 with the pinned official CLI. An offline fixture host exercised the actual release plugin process over RPC v6: registration and rejection of a mismatched contribution, 15 HTTP middleware cases, and clean shutdown. These checks covered the GET WebSocket upgrade response and POST SSE response handles, exact URI/query preservation, unchanged headers/settings/timeouts/lazy body handles, one `next` callback per request, and no body reads or response buffering. The fixture is not a running CPR gateway or an upstream model service; live authentication, network SSE/WebSocket traffic, and continuation on CPR `3.32.0` have not been exercised.
+Version `0.2.0` passed the three Rust tests and was built and packaged on macOS arm64 with the pinned official CLI. An offline fixture host exercised the actual release plugin process over RPC v6: registration and rejection of a mismatched contribution, 15 HTTP middleware cases, and clean shutdown. These checks covered the GET WebSocket upgrade response and POST SSE response handles, exact URI/query preservation, unchanged headers/settings/timeouts/lazy body handles, one `next` callback per request, and no body reads or response buffering.
+
+The published Linux x86_64 package was subsequently installed through CPR `3.32.0`'s native GitHub verify/install flow. Live probes confirmed HTTP and WebSocket authentication rejection for missing/invalid keys, SSE completion, HTTP continuation via `previous_response_id`, and WebSocket upgrade followed by `response.create` completion on the alias. Native routes remained healthy and nonmatching paths stayed unchanged. Requests used `store=false`; the tested upstream rejected `store=true` on the native route too. Actual Pi/OMP client sessions, WebSocket in-connection continuation, non-stream aggregation, and image/search requests were not part of this deployment check.
 
 The unchanged routing implementation was previously exercised against CPR `3.18.3` with real SSE and WebSocket requests and multi-turn continuation through a compatible client. That historical evidence does not establish end-to-end compatibility of this SDK upgrade.
 
