@@ -19,9 +19,9 @@ CPR owns authentication, client-key access scope, account selection, native Code
 
 ## Compatibility
 
-- Source/package version: `0.2.0`.
-- Manifest host range: CPR `>=3.32.0, <3.33.0`. This release targets CPR `3.32.0`'s RPC v6 and middleware v6 contracts; it is not compatible with the old RPC used by `0.1.x`. Future host releases must be checked against their published compatibility contract.
-- Official SDK and packaging CLI pinned to CPR revision `6a5300a7b5c649f2a6d548df70ccdd58d15e0025` (`v3.32.0`).
+- Source/package version: `0.3.0`.
+- Manifest host range: CPR `>=3.33.0, <3.34.0`. This release targets CPR `3.33.0`'s RPC v7 and middleware v6 contracts; CPR `3.33.0` accepts only RPC v7 sessions. It is not compatible with the RPC v6 packages released as `0.2.x`, nor with the older RPC used by `0.1.x`. Future host releases must be checked against their published compatibility contract.
+- Official SDK and packaging CLI pinned to CPR revision `8c8618aa0f841638262262e3338c115bc075f125` (`v3.33.0`).
 - Stable plugin ID: `selfhosted.omp-native-bridge`. The legacy machine name is retained for identity continuity; it does not restrict the plugin to one client.
 
 The public repository is [codex-path-native-bridge](https://github.com/ninthcj/codex-path-native-bridge). The Rust package/binary keeps its existing name, `cpr-omp-native-bridge`.
@@ -48,7 +48,7 @@ An explicit target requires its Rust target components and a suitable linker/too
 
 ## Install in CPR
 
-1. In CPR's **Plugin Management**, choose **GitHub** and enter `ninthcj/codex-path-native-bridge`. Select `v0.2.0` (or a later compatible release) and the archive matching the host platform. Use the published SHA-256 when requested.
+1. In CPR's **Plugin Management**, choose **GitHub** and enter `ninthcj/codex-path-native-bridge`. Select `v0.3.0` (or a later compatible release) and the archive matching the host platform. Use the published SHA-256 when requested.
 2. Alternatively, build a package for the host platform and choose **uploaded package** to install the archive from `dist/`.
 3. Review the publisher, name, version, target platform and digest. Confirm installation only if you trust the code and its source.
 4. Confirm the configuration is enabled and published. This plugin has no configuration parameters or secrets. For an existing installation, review and confirm the switch to the new package version rather than assuming upload alone changes the active version.
@@ -64,17 +64,15 @@ The implementation does not itself read or store credentials. It still receives 
 
 ## Verification
 
-The existing three deterministic Rust tests cover:
+The three deterministic routing tests cover:
 
 - `GET`/`POST` rewriting with exact query and authority preservation;
 - unchanged unrelated paths and URI forms;
 - unchanged unrelated methods, including case variants.
 
-Version `0.2.0` passed the three Rust tests and was built and packaged on macOS arm64 with the pinned official CLI. An offline fixture host exercised the actual release plugin process over RPC v6: registration and rejection of a mismatched contribution, 15 HTTP middleware cases, and clean shutdown. These checks covered the GET WebSocket upgrade response and POST SSE response handles, exact URI/query preservation, unchanged headers/settings/timeouts/lazy body handles, one `next` callback per request, and no body reads or response buffering.
+Version `0.3.0` passed those tests plus three process-level RPC tests under both `cargo test` and `cargo test --release` on macOS arm64, and the release tests also passed for `x86_64-unknown-linux-gnu` inside a disposable Rust `1.99.1` container. The process tests spawn the compiled plugin binary and speak the SDK's RPC v7 framing to it as the host: they complete the handshake and Ready exchange, reject an RPC v6 handshake and a mismatched middleware contribution, and run 15 HTTP middleware calls. Those calls cover `GET`, `POST`, absolute-URI authority, exact query bytes, upgrade headers, request-body handles and response-body handles. Each call asserts that the plugin invokes `next` exactly once with the expected rewritten or unchanged URI, that headers, settings, timeout, version and lazy body handles are otherwise unchanged, and that status, headers, body handle and response source come back unchanged. Unexpected body reads, response buffering, duplicate `next` calls and unclean shutdown fail the test.
 
-The published Linux x86_64 package was subsequently installed through CPR `3.32.0`'s native GitHub verify/install flow. Live probes confirmed HTTP and WebSocket authentication rejection for missing/invalid keys, SSE completion, HTTP continuation via `previous_response_id`, and WebSocket upgrade followed by `response.create` completion on the alias. Native routes remained healthy and nonmatching paths stayed unchanged. Requests used `store=false`; the tested upstream rejected `store=true` on the native route too. Actual Pi/OMP client sessions, WebSocket in-connection continuation, non-stream aggregation, and image/search requests were not part of this deployment check.
-
-The unchanged routing implementation was previously exercised against CPR `3.18.3` with real SSE and WebSocket requests and multi-turn continuation through a compatible client. That historical evidence does not establish end-to-end compatibility of this SDK upgrade.
+The `0.3.0` Linux x86_64 package was built from the `v0.3.0` tag with the pinned packaging CLI and its generated manifest was inspected; no live CPR `3.33.0` installation was performed as part of this release preparation. The `0.2.0` Linux package had previously been installed through CPR `3.32.0` with live HTTP/WebSocket probes, but that evidence belongs to the RPC v6 package and does not establish RPC v7 behavior. The unchanged routing implementation was also exercised earlier against CPR `3.18.3` with real SSE and WebSocket requests and continuation through a compatible client.
 
 For your own installation, verify that authentication still applies, then exercise the client's SSE and WebSocket transports and a continuation turn. A successful upload or an enabled status alone is not evidence of end-to-end client compatibility.
 
@@ -82,9 +80,13 @@ For your own installation, verify that authentication still applies, then exerci
 
 This project's source is licensed under [Apache License 2.0](LICENSE).
 
-It depends on CPR's official `gateway-plugin-sdk`, which inherits `Apache-2.0` from the [pinned upstream workspace](https://github.com/zyycn/codex-proxy-rs/blob/6a5300a7b5c649f2a6d548df70ccdd58d15e0025/backend/Cargo.toml). The pinned upstream root contains no `NOTICE` file. Dependencies remain under their respective licenses; this project's license does not relicense them. Binary redistributors must also satisfy the licenses of the dependencies they distribute.
+It depends on CPR's official `gateway-plugin-sdk`, which inherits `Apache-2.0` from the [pinned upstream workspace](https://github.com/zyycn/codex-proxy-rs/blob/8c8618aa0f841638262262e3338c115bc075f125/backend/Cargo.toml). The pinned upstream root contains no `NOTICE` file. Dependencies remain under their respective licenses; this project's license does not relicense them. Binary redistributors must also satisfy the licenses of the dependencies they distribute.
 
 ## Changes
+
+### 0.3.0
+
+Update the official SDK and packaging CLI to CPR `3.33.0`, with RPC v7 and the unchanged middleware v6 contract. Raise the host range to `>=3.33.0, <3.34.0`; CPR `3.33.0` accepts only RPC v7 sessions, so `0.2.x` RPC v6 packages must be rebuilt rather than reused with changed metadata. Add process-level tests that run the compiled plugin against an offline RPC v7 host fixture. Keep the stable plugin ID, routing implementation, empty configuration and manifest contribution stages unchanged; no cache control, client-specific conversion, streaming change or additional call-budget override is introduced.
 
 ### 0.2.0
 
@@ -96,6 +98,6 @@ Adopt Apache-2.0 licensing and publish client-neutral build, installation and tr
 
 ## Upstream references
 
-- [Plugin installation and trust](https://github.com/zyycn/codex-proxy-rs/blob/6a5300a7b5c649f2a6d548df70ccdd58d15e0025/docs/plugins.md)
-- [Official SDK](https://github.com/zyycn/codex-proxy-rs/blob/6a5300a7b5c649f2a6d548df70ccdd58d15e0025/backend/crates/gateway-plugin/sdk/README.md)
-- [Official packaging CLI](https://github.com/zyycn/codex-proxy-rs/blob/6a5300a7b5c649f2a6d548df70ccdd58d15e0025/backend/apps/plugin-cli/README.md)
+- [Plugin installation and trust](https://github.com/zyycn/codex-proxy-rs/blob/8c8618aa0f841638262262e3338c115bc075f125/docs/plugins.md)
+- [Official SDK](https://github.com/zyycn/codex-proxy-rs/blob/8c8618aa0f841638262262e3338c115bc075f125/backend/crates/gateway-plugin/sdk/README.md)
+- [Official packaging CLI](https://github.com/zyycn/codex-proxy-rs/blob/8c8618aa0f841638262262e3338c115bc075f125/backend/apps/plugin-cli/README.md)

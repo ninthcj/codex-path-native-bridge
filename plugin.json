@@ -3,11 +3,11 @@
   "publisher": "selfhosted",
   "name": "omp-native-bridge",
   "displayName": "Codex Path Native Bridge",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Forward native Codex HTTP and WebSocket handshake paths to CPR's native responses route.",
   "license": "Apache-2.0",
   "engines": {
-    "codex-proxy-rs": ">=3.32.0, <3.33.0"
+    "codex-proxy-rs": ">=3.33.0, <3.34.0"
   },
   "main": "bin/plugin",
   "runtime": "trustedProcess",
