@@ -19,10 +19,10 @@ CPR owns authentication, client-key access scope, account selection, native Code
 
 ## Compatibility
 
-- Source/package version: `0.3.2`.
-- Manifest host range: CPR `>=3.33.0, <3.36.0`. CPR `3.33.0`, `3.34.0` and `3.35.x` all accept only RPC v7 sessions and publish the same manifest schema 2 and middleware v6 contracts, so one package serves them. It is not compatible with the RPC v6 packages released as `0.2.x`, nor with the older RPC used by `0.1.x`. Future host releases must be checked against their published compatibility contract.
-- Official SDK and packaging CLI pinned to CPR revision `80f7d53085f5c9552e7e74b796a0bec50586ee1b` (`v3.35.0`). CPR `3.35.0` keeps RPC v7, manifest schema 2 and middleware v6, so the routing implementation, configuration schema and manifest contributions are unchanged. Its `model_catalog` change (v2 only) does not affect this package, which contributes no model catalog.
-- CPR `3.34.0` and later do not start a plugin whose declared host range or capability versions do not match, and an administrator's per-start risk confirmation does not survive a host restart. A `0.3.1` package declares `<3.35.0`, so it stays unstarted after an upgrade to CPR `3.35.x`; use `0.3.2` there.
+- Source/package version: `0.3.3`.
+- Manifest host range: CPR `>=3.33.0, <3.37.0`. CPR `3.33.0`, `3.34.0`, `3.35.x` and `3.36.0` all accept only RPC v7 sessions and publish the same manifest schema 2 and middleware v6 contracts, so one package serves them. It is not compatible with the RPC v6 packages released as `0.2.x`, nor with the older RPC used by `0.1.x`. Future host releases must be checked against their published compatibility contract.
+- Official SDK and packaging CLI pinned to CPR revision `5ae38dc0c55c192815ef605dde6c05fd767a2c28` (`v3.36.0`). CPR `3.36.0` keeps RPC v7, manifest schema 2 and middleware v6: the SDK, packaging CLI, host compatibility manifest and plugin documentation trees are identical to the `3.35.0` pin, and the plugin-runtime diff is three message strings. Its Responses, usage, admin and backup changes are outside the plugin contract this package contributes to.
+- CPR `3.34.0` and later do not start a plugin whose declared host range or capability versions do not match, and an administrator's per-start risk confirmation does not survive a host restart. A `0.3.2` package declares `<3.36.0`, so it stays unstarted after an upgrade to CPR `3.36.x`; use `0.3.3` there.
 - Stable plugin ID: `selfhosted.omp-native-bridge`. The legacy machine name is retained for identity continuity; it does not restrict the plugin to one client.
 
 The public repository is [codex-path-native-bridge](https://github.com/ninthcj/codex-path-native-bridge). The Rust package/binary keeps its existing name, `cpr-omp-native-bridge`.
@@ -49,7 +49,7 @@ An explicit target requires its Rust target components and a suitable linker/too
 
 ## Install in CPR
 
-1. In CPR's **Plugin Management**, choose **GitHub** and enter `ninthcj/codex-path-native-bridge`. Select `v0.3.2` (or a later compatible release) and the archive matching the host platform. Use the published SHA-256 when requested.
+1. In CPR's **Plugin Management**, choose **GitHub** and enter `ninthcj/codex-path-native-bridge`. Select `v0.3.3` (or a later compatible release) and the archive matching the host platform. Use the published SHA-256 when requested.
 2. Alternatively, build a package for the host platform and choose **uploaded package** to install the archive from `dist/`.
 3. Review the publisher, name, version, target platform and digest. Confirm installation only if you trust the code and its source.
 4. Confirm the configuration is enabled and published. This plugin has no configuration parameters or secrets. For an existing installation, review and confirm the switch to the new package version rather than assuming upload alone changes the active version.
@@ -71,9 +71,9 @@ The three deterministic routing tests cover:
 - unchanged unrelated paths and URI forms;
 - unchanged unrelated methods, including case variants.
 
-Version `0.3.2` passed those tests plus three process-level RPC tests under both `cargo test` and `cargo test --release` on macOS arm64, and the release tests also passed for `x86_64-unknown-linux-gnu` inside a disposable Rust `1.99.1` container. The process tests spawn the compiled plugin binary and speak the SDK's RPC v7 framing to it as the host: they complete the handshake and Ready exchange, reject an RPC v6 handshake and a mismatched middleware contribution, and run 15 HTTP middleware calls. Those calls cover `GET`, `POST`, absolute-URI authority, exact query bytes, upgrade headers, request-body handles and response-body handles. Each call asserts that the plugin invokes `next` exactly once with the expected rewritten or unchanged URI, that headers, settings, timeout, version and lazy body handles are otherwise unchanged, and that status, headers, body handle and response source come back unchanged. Unexpected body reads, response buffering, duplicate `next` calls and unclean shutdown fail the test.
+Version `0.3.3` passed those tests plus three process-level RPC tests under both `cargo test` and `cargo test --release` on macOS arm64, and the release tests also passed for `x86_64-unknown-linux-gnu` inside a disposable Rust `1.99.1` container. The process tests spawn the compiled plugin binary and speak the SDK's RPC v7 framing to it as the host: they complete the handshake and Ready exchange, reject an RPC v6 handshake and a mismatched middleware contribution, and run 15 HTTP middleware calls. Those calls cover `GET`, `POST`, absolute-URI authority, exact query bytes, upgrade headers, request-body handles and response-body handles. Each call asserts that the plugin invokes `next` exactly once with the expected rewritten or unchanged URI, that headers, settings, timeout, version and lazy body handles are otherwise unchanged, and that status, headers, body handle and response source come back unchanged. Unexpected body reads, response buffering, duplicate `next` calls and unclean shutdown fail the test.
 
-The `0.3.2` Linux x86_64 package was built from the `v0.3.2` tag with the pinned packaging CLI, and the published archive matched its SHA-256 sidecar.
+The `0.3.3` Linux x86_64 package was built from the `v0.3.3` tag with the pinned packaging CLI, and the published archive matched its SHA-256 sidecar.
 
 It was installed through CPR `3.33.0`'s native GitHub verify/install flow (verify `200`, install `201`) on a production instance. Installation and activation are separate steps: the artifact was installed first, then a version plan (`200`) and version switch (`200`) moved the existing instance to it, preserving its configuration, bindings and middleware failure policy, and leaving the previous revision draining. The running instance reported revision 93, enabled/running, `actualArtifactSha256` `5cf27573…`, no compatibility warning, no load error and no API deprecation. Health probes returned `204` for healthz and `200` for health; both native `POST /v1/responses` and alias `POST /v1/codex/responses` rejected an unauthenticated request with `401`.
 
@@ -87,9 +87,13 @@ For your own installation, verify that authentication still applies, then exerci
 
 This project's source is licensed under [Apache License 2.0](LICENSE).
 
-It depends on CPR's official `gateway-plugin-sdk`, which inherits `Apache-2.0` from the [pinned upstream workspace](https://github.com/zyycn/codex-proxy-rs/blob/80f7d53085f5c9552e7e74b796a0bec50586ee1b/backend/Cargo.toml). The pinned upstream root contains no `NOTICE` file. Dependencies remain under their respective licenses; this project's license does not relicense them. Binary redistributors must also satisfy the licenses of the dependencies they distribute.
+It depends on CPR's official `gateway-plugin-sdk`, which inherits `Apache-2.0` from the [pinned upstream workspace](https://github.com/zyycn/codex-proxy-rs/blob/5ae38dc0c55c192815ef605dde6c05fd767a2c28/backend/Cargo.toml). The pinned upstream root contains no `NOTICE` file. Dependencies remain under their respective licenses; this project's license does not relicense them. Binary redistributors must also satisfy the licenses of the dependencies they distribute.
 
 ## Changes
+
+### 0.3.3
+
+Widen the declared host range to `>=3.33.0, <3.37.0` so CPR `3.36.0` accepts and starts this package, and move the official SDK and packaging CLI pin to CPR revision `5ae38dc0c55c192815ef605dde6c05fd767a2c28` (`v3.36.0`). CPR `3.36.0` keeps RPC v7, manifest schema 2, middleware v6 and the same capability list: the pinned SDK, packaging CLI, host compatibility manifest and plugin documentation are byte-identical between the two revisions, and the plugin-runtime diff is three error-message strings, so the routing implementation, configuration schema, empty configuration and manifest contributions are unchanged. The source diff is the manifest version/range, the crate version, the dependency pin and `Cargo.lock`. The binary is rebuilt because CPR `3.36.0` does not start a plugin whose declared host range does not match, and a `0.3.2` package declares `<3.36.0`.
 
 ### 0.3.2
 
@@ -113,6 +117,6 @@ Adopt Apache-2.0 licensing and publish client-neutral build, installation and tr
 
 ## Upstream references
 
-- [Plugin installation and trust](https://github.com/zyycn/codex-proxy-rs/blob/80f7d53085f5c9552e7e74b796a0bec50586ee1b/docs/plugins.md)
-- [Official SDK](https://github.com/zyycn/codex-proxy-rs/blob/80f7d53085f5c9552e7e74b796a0bec50586ee1b/backend/crates/gateway-plugin/sdk/README.md)
-- [Official packaging CLI](https://github.com/zyycn/codex-proxy-rs/blob/80f7d53085f5c9552e7e74b796a0bec50586ee1b/backend/apps/plugin-cli/README.md)
+- [Plugin installation and trust](https://github.com/zyycn/codex-proxy-rs/blob/5ae38dc0c55c192815ef605dde6c05fd767a2c28/docs/plugins.md)
+- [Official SDK](https://github.com/zyycn/codex-proxy-rs/blob/5ae38dc0c55c192815ef605dde6c05fd767a2c28/backend/crates/gateway-plugin/sdk/README.md)
+- [Official packaging CLI](https://github.com/zyycn/codex-proxy-rs/blob/5ae38dc0c55c192815ef605dde6c05fd767a2c28/backend/apps/plugin-cli/README.md)
