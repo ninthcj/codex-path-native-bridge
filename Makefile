@@ -1,5 +1,5 @@
 TARGET ?= $(shell rustc --print host-tuple)
-CPR_REV := 641f43b3030b1c68961e05d525e58ec6f4264a15
+CPR_REV := 7a32c6cec206939d6ecf97ea5d29fc1fdbeec3cf
 CLI := $(CURDIR)/.tools/bin/cpr-plugin
 
 .PHONY: build test cli package
