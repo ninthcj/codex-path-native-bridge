@@ -16,7 +16,7 @@ checksum = "fc652a48c352aef3ea3aed32080501cf3ef6ed5da78602a020c991775b0aff04"
 
 [[package]]
 name = "cpr-omp-native-bridge"
-version = "0.3.8"
+version = "0.3.9"
 dependencies = [
  "gateway-plugin-sdk",
  "serde_json",
@@ -36,7 +36,7 @@ dependencies = [
 [[package]]
 name = "gateway-plugin-sdk"
 version = "0.1.0"
-source = "git+https://github.com/zyycn/codex-proxy-rs.git?rev=9039cef3d87ae86ae9422b17c5d4dae1a5247dfa#9039cef3d87ae86ae9422b17c5d4dae1a5247dfa"
+source = "git+https://github.com/zyycn/codex-proxy-rs.git?rev=e0a3dc20dd907071fc78f81cfba9a58f00a27521#e0a3dc20dd907071fc78f81cfba9a58f00a27521"
 dependencies = [
  "base64",
  "semver",

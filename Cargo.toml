@@ -1,13 +1,13 @@
 [package]
 name = "cpr-omp-native-bridge"
-version = "0.3.8"
+version = "0.3.9"
 edition = "2024"
 rust-version = "1.99.1"
 publish = false
 license = "Apache-2.0"
 
 [dependencies]
-gateway-plugin-sdk = { git = "https://github.com/zyycn/codex-proxy-rs.git", rev = "9039cef3d87ae86ae9422b17c5d4dae1a5247dfa", features = ["io"] }
+gateway-plugin-sdk = { git = "https://github.com/zyycn/codex-proxy-rs.git", rev = "e0a3dc20dd907071fc78f81cfba9a58f00a27521", features = ["io"] }
 tokio = { version = "1.52.3", default-features = false, features = ["io-std", "macros", "rt"] }
 
 [dev-dependencies]
