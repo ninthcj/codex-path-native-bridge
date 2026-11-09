@@ -19,10 +19,10 @@ CPR owns authentication, client-key access scope, account selection, native Code
 
 ## Compatibility
 
-- Source/package version: `0.3.10`.
-- Manifest host range: CPR `>=3.33.0, <3.44.0`. CPR `3.33.0`, `3.34.0`, `3.35.x`, `3.36.x`, `3.37.x`, `3.38.x`, `3.39.x`, `3.40.x`, `3.41.x`, `3.42.x` and `3.43.x` all accept only RPC v7 sessions and publish the same manifest schema 2 and middleware v6 contracts, so one package serves them. It is not compatible with the RPC v6 packages released as `0.2.x`, nor with the older RPC used by `0.1.x`. Future host releases must be checked against their published compatibility contract.
-- Official SDK and packaging CLI pinned to CPR revision `402bc37fbb5c83378cc83cec89e9fa251e4a99c1` (`v3.43.0`). CPR `3.43.x` keeps RPC v7, manifest schema 2 and middleware v6 with the same capability versions: the whole `backend/crates/gateway-plugin/` tree (including `plugin-host-compatibility.json` and the SDK's protocol message and capability sources), the packaging CLI tree, `docs/plugins.md` and `backend/migrations/` are byte-identical between `v3.42.1` and `v3.43.0`, so the ABI this package uses and its routing code are unchanged. The `v3.43.0` release delta is releasing an instance's account concurrency leases on graceful shutdown plus admin theme presets and console/usage page fixes; none of it changes the plugin ABI or the middleware call this package implements.
-- CPR `3.34.0` and later do not start a plugin whose declared host range or capability versions do not match, and an administrator's per-start risk confirmation does not survive a host restart. A `0.3.4` package declares `<3.38.0`, a `0.3.5` package declares `<3.39.0`, a `0.3.6` package declares `<3.40.0`, a `0.3.7` package declares `<3.41.0`, a `0.3.8` package declares `<3.42.0` and a `0.3.9` package declares `<3.43.0`, so each stays unstarted after an upgrade past its range; use `0.3.10` on CPR `3.33.x` through `3.43.x`.
+- Source/package version: `0.3.11`.
+- Manifest host range: CPR `>=3.33.0, <3.45.0`. CPR `3.33.0`, `3.34.0`, `3.35.x`, `3.36.x`, `3.37.x`, `3.38.x`, `3.39.x`, `3.40.x`, `3.41.x`, `3.42.x`, `3.43.x` and `3.44.x` all accept only RPC v7 sessions and publish the same manifest schema 2 and middleware v6 contracts, so one package serves them. It is not compatible with the RPC v6 packages released as `0.2.x`, nor with the older RPC used by `0.1.x`. Future host releases must be checked against their published compatibility contract.
+- Official SDK and packaging CLI pinned to CPR revision `c622f085748f812936a7371fcc85d1621fa72ca8` (`v3.44.0`). CPR `3.44.x` keeps RPC v7, manifest schema 2 and middleware v6 with the same capability versions: `plugin-host-compatibility.json`, the packaging CLI tree, `docs/plugins.md` and `backend/migrations/` are byte-identical between `v3.43.0` and `v3.44.0`. The `backend/crates/gateway-plugin/` delta is additive: the SDK gains `HostClient::proxy_http` (`host.http.proxy`) and `HostClient::list_proxies` (`host.proxies.list`) with their wire types, documentation and tests, and the runtime gains the proxy read port, callback and generation wiring that serve them. The SDK's frame codecs, session driver, middleware call types and `PluginBuilder` are unchanged, and this package calls none of the new functions, so its ABI and routing code are unchanged. The `v3.44.0` release delta beyond that is account connection-test proxy error display, Codex-quota header classification at image endpoints, admin theme material fixes and dependency bumps; none of it changes the plugin ABI or the middleware call this package implements.
+- CPR `3.34.0` and later do not start a plugin whose declared host range or capability versions do not match, and an administrator's per-start risk confirmation does not survive a host restart. A `0.3.4` package declares `<3.38.0`, a `0.3.5` package declares `<3.39.0`, a `0.3.6` package declares `<3.40.0`, a `0.3.7` package declares `<3.41.0`, a `0.3.8` package declares `<3.42.0`, a `0.3.9` package declares `<3.43.0` and a `0.3.10` package declares `<3.44.0`, so each stays unstarted after an upgrade past its range; use `0.3.11` on CPR `3.33.x` through `3.44.x`.
 - Stable plugin ID: `selfhosted.omp-native-bridge`. The legacy machine name is retained for identity continuity; it does not restrict the plugin to one client.
 
 The public repository is [codex-path-native-bridge](https://github.com/ninthcj/codex-path-native-bridge). The Rust package/binary keeps its existing name, `cpr-omp-native-bridge`.
@@ -49,7 +49,7 @@ An explicit target requires its Rust target components and a suitable linker/too
 
 ## Install in CPR
 
-1. In CPR's **Plugin Management**, choose **GitHub** and enter `ninthcj/codex-path-native-bridge`. Select `v0.3.10` (or a later compatible release) and the archive matching the host platform. Use the published SHA-256 when requested.
+1. In CPR's **Plugin Management**, choose **GitHub** and enter `ninthcj/codex-path-native-bridge`. Select `v0.3.11` (or a later compatible release) and the archive matching the host platform. Use the published SHA-256 when requested.
 2. Alternatively, build a package for the host platform and choose **uploaded package** to install the archive from `dist/`.
 3. Review the publisher, name, version, target platform and digest. Confirm installation only if you trust the code and its source.
 4. Confirm the configuration is enabled and published. This plugin has no configuration parameters or secrets. For an existing installation, review and confirm the switch to the new package version rather than assuming upload alone changes the active version.
@@ -111,9 +111,13 @@ For your own installation, verify that authentication still applies, then exerci
 
 This project's source is licensed under [Apache License 2.0](LICENSE).
 
-It depends on CPR's official `gateway-plugin-sdk`, which inherits `Apache-2.0` from the [pinned upstream workspace](https://github.com/zyycn/codex-proxy-rs/blob/402bc37fbb5c83378cc83cec89e9fa251e4a99c1/backend/Cargo.toml). The pinned upstream root contains no `NOTICE` file. Dependencies remain under their respective licenses; this project's license does not relicense them. Binary redistributors must also satisfy the licenses of the dependencies they distribute.
+It depends on CPR's official `gateway-plugin-sdk`, which inherits `Apache-2.0` from the [pinned upstream workspace](https://github.com/zyycn/codex-proxy-rs/blob/c622f085748f812936a7371fcc85d1621fa72ca8/backend/Cargo.toml). The pinned upstream root contains no `NOTICE` file. Dependencies remain under their respective licenses; this project's license does not relicense them. Binary redistributors must also satisfy the licenses of the dependencies they distribute.
 
 ## Changes
+
+### 0.3.11
+
+Widen the declared host range to `>=3.33.0, <3.45.0` so CPR `3.44.x` accepts and starts this package, and move the official SDK and packaging CLI pin to CPR revision `c622f085748f812936a7371fcc85d1621fa72ca8` (`v3.44.0`). The ABI this package uses is unchanged: `plugin-host-compatibility.json` (manifest schema 2, RPC v7, middleware v6, same capability versions), the packaging CLI tree, `docs/plugins.md` and `backend/migrations/` are byte-identical between `v3.43.0` and `v3.44.0`. The SDK delta is additive — `HostClient::proxy_http` (`host.http.proxy`) and `HostClient::list_proxies` (`host.proxies.list`) with their wire types, documentation and tests — plus the host runtime proxy read port, callback and generation wiring that serve those calls; the SDK's frame codecs, session driver, middleware call types and `PluginBuilder` are unchanged, and this package calls none of the new functions. The `v3.44.0` release delta is account connection-test proxy error display, Codex-quota header classification at the image endpoints, admin theme material fixes and dependency bumps. The routing implementation, configuration schema, empty configuration and manifest contributions are unchanged; the source diff is the manifest version/range, the crate version, the dependency pin and `Cargo.lock`. The binary is rebuilt because CPR `3.34.0` and later do not start a plugin whose declared host range does not match, and a `0.3.10` package declares `<3.44.0`.
 
 ### 0.3.10
 
@@ -169,6 +173,6 @@ Adopt Apache-2.0 licensing and publish client-neutral build, installation and tr
 
 ## Upstream references
 
-- [Plugin installation and trust](https://github.com/zyycn/codex-proxy-rs/blob/402bc37fbb5c83378cc83cec89e9fa251e4a99c1/docs/plugins.md)
-- [Official SDK](https://github.com/zyycn/codex-proxy-rs/blob/402bc37fbb5c83378cc83cec89e9fa251e4a99c1/backend/crates/gateway-plugin/sdk/README.md)
-- [Official packaging CLI](https://github.com/zyycn/codex-proxy-rs/blob/402bc37fbb5c83378cc83cec89e9fa251e4a99c1/backend/apps/plugin-cli/README.md)
+- [Plugin installation and trust](https://github.com/zyycn/codex-proxy-rs/blob/c622f085748f812936a7371fcc85d1621fa72ca8/docs/plugins.md)
+- [Official SDK](https://github.com/zyycn/codex-proxy-rs/blob/c622f085748f812936a7371fcc85d1621fa72ca8/backend/crates/gateway-plugin/sdk/README.md)
+- [Official packaging CLI](https://github.com/zyycn/codex-proxy-rs/blob/c622f085748f812936a7371fcc85d1621fa72ca8/backend/apps/plugin-cli/README.md)
